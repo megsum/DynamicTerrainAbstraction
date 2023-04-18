@@ -16,6 +16,7 @@ public:
 
 	vector<int> currentLocation;
 	vector<int> previousLocation;
+	vector<State*> children;
 
 	int regionID;
 	int terrainID;

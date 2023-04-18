@@ -9,7 +9,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 project ("AbstractionWithWeightedCosts")
 
 # Add source to this project's executable.
-add_executable (AbstractionWithWeightedCosts "AbstractionWithWeightedCosts.cpp" "AbstractionWithWeightedCosts.h" "GridWorld.cpp" "GridWorld.h" "WeightedAStar.cpp" "WeightedAStar.h" "DynamicAbstraction.cpp" "DynamicAbstraction.h" "State.cpp" "State.h")
+add_executable (AbstractionWithWeightedCosts "main.cpp"  "GridWorld.cpp" "GridWorld.h" "WeightedAStar.cpp" "WeightedAStar.h" "DynamicAbstraction.cpp" "DynamicAbstraction.h" "State.cpp" "State.h")
 
 # TODO: Add tests and install targets if needed.
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

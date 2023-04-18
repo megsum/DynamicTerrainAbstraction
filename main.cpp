@@ -1,7 +1,6 @@
 ﻿// AbstractionWithWeightedCosts.cpp : Defines the entry point for the application.
 //
 
-#include "AbstractionWithWeightedCosts.h"
 #include "DynamicAbstraction.h"
 #include "GridWorld.h"
 
