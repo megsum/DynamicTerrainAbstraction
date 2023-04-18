@@ -33,7 +33,8 @@ vector<State*> DynamicAbstraction::BFS(State* startState, vector<vector<int>> we
 		// Take the depth of parent + 1 (unit costs). Abstract children
 		// If child doesn't exists, store the child
 		// If we haven't seen it before, put s in the queue
-		for (auto child : currentState->GenerateChildrenBoards(weightedLevelVector, regionID))
+		currentState->GenerateChildrenBoards(weightedLevelVector);
+		for (auto child : currentState->children)
 		{
 			bool childExists = false;
 			for (auto foundState : stateVector)
@@ -51,4 +52,55 @@ vector<State*> DynamicAbstraction::BFS(State* startState, vector<vector<int>> we
 		}
 	}
 	return stateVector;
+}
+
+// TODO: Should probably make this add children use the same check as the generate children above
+void DynamicAbstraction::AddTerrainEdges(vector<State*> stateVector, vector<vector<int>> weightedLevelVector)
+{
+	for (auto state : stateVector)
+	{
+		for (int i = 0; i < stateVector.size(); i++)
+		{
+			// Left
+			vector<int> tempLocation = { state->currentLocation[0] + 1, state->currentLocation[1] };
+			if (stateVector[i]->currentLocation == tempLocation)
+			{
+				if (stateVector[i]->terrainID != state->terrainID)
+				{
+					state->children.push_back(stateVector[i]);
+				}
+			}
+
+			// Right
+			tempLocation = { state->currentLocation[0] - 1, state->currentLocation[1] };
+			if (stateVector[i]->currentLocation == tempLocation)
+			{
+				if (stateVector[i]->terrainID != state->terrainID)
+				{
+					state->children.push_back(stateVector[i]);
+				}
+			}
+
+			// Up
+			tempLocation = { state->currentLocation[0], state->currentLocation[1] + 1 };
+			if (stateVector[i]->currentLocation == tempLocation)
+			{
+				if (stateVector[i]->terrainID != state->terrainID)
+				{
+					state->children.push_back(stateVector[i]);
+				}
+			}
+
+			// Down
+			tempLocation = { state->currentLocation[0], state->currentLocation[1] - 1 };
+			if (stateVector[i]->currentLocation == tempLocation)
+			{
+				if (stateVector[i]->terrainID != state->terrainID)
+				{
+					state->children.push_back(stateVector[i]);
+				}
+			}
+		}
+
+	}
 }

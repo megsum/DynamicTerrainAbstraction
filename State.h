@@ -12,7 +12,7 @@ public:
 	// Destructor
 	~State();
 
-	vector<State*> GenerateChildrenBoards(vector<vector<int>> weightedLevelVector, int regionID);
+	void GenerateChildrenBoards(vector<vector<int>> weightedLevelVector);
 
 	vector<int> currentLocation;
 	vector<int> previousLocation;

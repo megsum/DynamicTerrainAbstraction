@@ -14,4 +14,6 @@ public:
 	~DynamicAbstraction();
 
 	static vector<State*> BFS(State* startState, vector<vector<int>> weightedLevelVector, vector<State*> stateVector, int regionID);
+
+	static void AddTerrainEdges(vector<State*> stateVector, vector<vector<int>> weightedLevelVector);
 };

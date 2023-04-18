@@ -5,6 +5,7 @@ State::State(vector<int> currentLocation, vector<int> previousLocation, int terr
 {
 	this->currentLocation = currentLocation;
 	this->previousLocation = previousLocation;
+	this->children = children;
 
 	// Terrain ID of the locations current terrain type
 	this->terrainID = terrainID;
@@ -21,10 +22,9 @@ State::~State()
 
 // Generate moves of up / down / left / right if possible
 // TODO Make work for diagonal moves
-vector<State*> State::GenerateChildrenBoards(vector<vector<int>> weightedLevelVector, int regionID)
+void State::GenerateChildrenBoards(vector<vector<int>> weightedLevelVector)
 {
 	vector<int> tempLocation = currentLocation;
-	vector<State*> children;
 
 	// Left Child
 	tempLocation = { currentLocation[0] + 1, currentLocation[1] };
@@ -69,6 +69,4 @@ vector<State*> State::GenerateChildrenBoards(vector<vector<int>> weightedLevelVe
 			children.push_back(downChild);
 		}
 	}
-
-	return children;
 }

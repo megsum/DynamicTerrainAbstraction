@@ -44,7 +44,8 @@ int main()
 		}
 	}
 
-	// Do one last iteration to look for neighbors in different regions. Add an edge between them
+	// Do one last iteration to look for neighbors in different regions. Add an edge between them.
+	DynamicAbstraction::AddTerrainEdges(stateVector, gridWorld->weightedLevelVector);
 
 	// Initialize state and run A* with abstract graph
 	// TODO eventually load scenarios, but will be using the first one of map 1 for testing.
