@@ -12,7 +12,6 @@ State::State(vector<int> currentLocation, vector<int> previousLocation, int terr
 
 	// The abstracted ID of a connected region (Grouped regions of the same type)
 	this->regionID = regionID;
-	
 }
 
 // Destructor

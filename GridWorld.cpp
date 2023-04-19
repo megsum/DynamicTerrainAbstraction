@@ -3,7 +3,7 @@ using namespace std;
 
 
 // Default constructor
-GridWorld::GridWorld(string MapLocation, vector<int> goalLocation)
+GridWorld::GridWorld(string MapLocation)
 {
 	this->goalLocation = goalLocation;
 

@@ -19,7 +19,8 @@ vector<State*> DynamicAbstraction::BFS(State* startState, vector<vector<int>> we
 	priority_queue<State*> queue;
 
 	queue.push(startState);
-
+	stateVector.push_back(startState);
+	
 	State* currentState;
 
 	while (!queue.empty())

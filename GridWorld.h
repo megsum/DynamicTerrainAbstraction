@@ -10,7 +10,7 @@ class GridWorld
 {
 public:
 	// Constructor
-	GridWorld(string MapLocation, vector<int> goalLocation);
+	GridWorld(string MapLocation);
 
 	// Destructor
 	~GridWorld();

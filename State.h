@@ -17,7 +17,12 @@ public:
 	vector<int> currentLocation;
 	vector<int> previousLocation;
 	vector<State*> children;
+	State* parent;
 
 	int regionID;
 	int terrainID;
+
+	double hCost;
+	double gCost;
+	double fCost;
 };
