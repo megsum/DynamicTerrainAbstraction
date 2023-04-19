@@ -5,7 +5,7 @@
 AStar::AStar(vector<int> goalLocation, vector<float> randomTerrainWeights)
 {
 	this->goalLocation = goalLocation;
-	this->randomTerrainWeights;
+	this->randomTerrainWeights = randomTerrainWeights;
 }
 
 // Destructor
