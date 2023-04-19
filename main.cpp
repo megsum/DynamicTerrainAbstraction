@@ -7,8 +7,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 // Saving states as space delimited. 
 void saveStatesToFile(const vector<State*> states, const string filename) {
@@ -96,7 +98,7 @@ int main()
 	ifstream file(stateVectorFile);
 
 	// TODO hardcoding map 1, but should loop through each map here and print the outputs.
-// Initializing grid world with the map and random weights
+	// Initializing grid world with the map and random weights
 	GridWorld* gridWorld = new GridWorld("../../../weighted-map/Map1.map");
 
 	// If the states have been saved, don't regenerate them.
@@ -111,6 +113,9 @@ int main()
 		// Limited to states with the same terrain type
 		// Label states with their region ID during BFS
 		// TODO optimize this. This is such an inefficient way to find the regions. A triple for loop :(
+		
+		// Tracking time taken to run BFS
+		auto bfsTimeStart = steady_clock::now();
 		int regionID = 0;
 		cout << "Creating regions of areas with the same terrain type.\n";
 		for (int i = 0; i < gridWorld->weightedLevelVector.size(); i++)
@@ -134,10 +139,22 @@ int main()
 				}
 			}
 		}
+		// End timer
+		auto bfsTimeEnd = steady_clock::now();
+		auto bfsElapsedTime = duration_cast<milliseconds>(bfsTimeEnd - bfsTimeStart).count() / 1000.0;
+		printf("%.2fs taken to generate initial regions using BFS. \n", bfsElapsedTime);
+
+		// Tracking time taken to do second pass
+		auto edgeTimeStart = steady_clock::now();
 
 		// Do one last iteration to look for neighbors in different regions. Add an edge between them.
 		cout << "Doing a second pass to add terrain edges.\n";
 		DynamicAbstraction::AddTerrainEdges(stateVector, gridWorld->weightedLevelVector);
+
+		// End timer
+		auto edgeTimeEnd = steady_clock::now();
+		auto edgeElapsedTime = duration_cast<milliseconds>(edgeTimeEnd - edgeTimeStart).count() / 1000.0;
+		printf("%.2fs taken to add terrain edges. \n", edgeElapsedTime);
 
 		// After the second pass is done we save it to file so we don't have to generate navmesh again until navmesh updates
 		saveStatesToFile(stateVector, stateVectorFile);
@@ -146,7 +163,6 @@ int main()
 
 	// Initialize state and run A* with abstract graph starting from first region to the region the goal is in
 	// TODO eventually load scenarios, but will be using the first one of map 1 for testing.
-	// State* startState = new State({ 381, 793 }, {}, gridWorld->weightedLevelVector[381][793], 0);
 	//vector<int> startLocation = { 381, 793 };
 	//vector<int> goalLocation = { 1724, 889 }
 
@@ -163,6 +179,9 @@ int main()
 		}
 	}
 	cout << "Running A Star from start location to next region.\n";
+
+	// Tracking time taken to run A star
+	auto aStarTimeStart = steady_clock::now();
 	AStar aStar = AStar(goalLocation, gridWorld->randomTerrainWeights);
 
 	// Search until we find a goal state or hit the next terrain type
@@ -178,6 +197,10 @@ int main()
 		abstractPath.push_back(goalState);
 		goalState = aStar.Search(goalState);
 	}
+	// End timer
+	auto aStarTimeEnd = steady_clock::now();
+	auto aStarElapsedTime = duration_cast<milliseconds>(aStarTimeEnd - aStarTimeStart).count() / 1000.0;
+	printf("%.2fs taken to run A*. \n", aStarElapsedTime);
 
 	// If this terrain type is not the goal location, run A* again with 
 	cout << "Goal location found with f cost: " << goalState->fCost;
