@@ -1,5 +1,6 @@
 #include "AStar.h"
 #include <queue>
+#include <unordered_set>
 
 // Default constructor
 AStar::AStar(vector<int> goalLocation, vector<float> randomTerrainWeights)
@@ -40,83 +41,70 @@ public:
 	}
 };
 
-// A* implementation from https://www.geeksforgeeks.org/a-search-algorithm/
+// I'm new to hashes, but maybe this is unique?
+struct StateHash {
+    size_t operator()(const State* state) const {
+        return hash<long long>()(state->currentLocation[0]) ^ (state->currentLocation[1]);
+    }
+};
+
+struct StateEqual {
+    bool operator()(const State* state1, const State* state2) const {
+        return state1->currentLocation == state2->currentLocation;
+    }
+};
+
+// https://en.wikipedia.org/wiki/A*_search_algorithm
+// Too bad I didn't figured out unordered sets for assignment 2 :( 
 State* AStar::Search(State* startState)
 {
-	vector<State*> openList;
-	//priority_queue<State*, vector<State*>, Compare> openQueue;
-	vector<State*> closedList;
+    priority_queue<State*, vector<State*>, Compare> openQueue;
+    unordered_set<State*, StateHash, StateEqual> closedSet = { startState };
 
-	// Need to update the h cost of the start state since we aren't doing that by default.
-	// Set the start state to visited
-	// Weighting the h cost with the random terrain weights we generated
-	startState->hCost = ManhattanDistanceHeuristic(startState) * randomTerrainWeights[startState->terrainID];
-	startState->gCost = 0;
-	startState->fCost = startState->hCost + startState->gCost;
-	openList.push_back(startState);
+    // Weighting hCost with the definied random weights
+    startState->hCost = ManhattanDistanceHeuristic(startState) * randomTerrainWeights[startState->terrainID];
+    startState->gCost = 0;
+    startState->fCost = startState->hCost + startState->gCost;
+    openQueue.push(startState);
 
-	// Set current state to start state
-	State* currentState;
+    State* currentState;
 
-	while (!openList.empty())
-	{
-		// take the back queue item and set it to our current state and then remove from the queue
-		currentState = openList.back();
-		openList.pop_back();
+    while (!openQueue.empty())
+    {
+        currentState = openQueue.top();
+        openQueue.pop();
+        // closedSet.insert(currentState);
 
-		// Generate successors
-		for (auto child : currentState->children)
-		{
-			// Generate successor costs
-			child->hCost = ManhattanDistanceHeuristic(child) * randomTerrainWeights[child->terrainID];
-			child->gCost = currentState->gCost + 1;
-			child->fCost = child->gCost + child->hCost;
+        // Iterate through successors
+        for (auto child : currentState->children)
+        {
+            child->hCost = ManhattanDistanceHeuristic(child) * randomTerrainWeights[child->terrainID];
+            child->gCost = currentState->gCost + 1;
+            child->fCost = child->gCost + child->hCost;
+            child->parent = currentState;
 
-			nodeExpansions += 1;
-			if (child->currentLocation == goalLocation || child->terrainID != currentState->terrainID)
-			{
-				// return path
-				printf("Solution found with an f cost of %f\n", child->fCost);
-				return child;
-			}
+            nodeExpansions += 1;
 
-			// Don't add to open queue if we've already visited this state.
-			// Add the new child in sorted f cost order
+            // If we hit the goal or we found a new terrain type, exit and iterate on the new terrain type
+            if (child->currentLocation == goalLocation || child->terrainID != startState->terrainID)
+            {
+                printf("\nSolution found with an f cost of %f and node expansions of %d \n", child->fCost, nodeExpansions);
+                return child;
+            }
 
-			for (auto it = openList.begin(); it != openList.end(); ++it) {
-				auto state = *it;
-				if (state->currentLocation == child->currentLocation) {
-					if (child->fCost < state->fCost) {
-						*it = child;
-					}
-					break;
-				}
-			}
+            // If the child is not in the closed set, add it to the open queue.
+            // Couldn't get the closed set working in time.
+            //if (closedSet.empty())
+            //{
+            //    openQueue.push(child);
+            //}
+            //else if (closedSet.count(child) == 0)
+            //{
+            openQueue.push(child);
+            //}
+        }
+    }
 
-			bool stateFound = false;
-			for (auto it = closedList.begin(); it != closedList.end(); ++it) {
-				auto state = *it;
-				if (state->currentLocation == child->currentLocation) {
-					if (state->fCost < child->fCost) {
-						*it = child;
-						stateFound = true;
-					}
-					break;
-				}
-			}
-
-			if (!stateFound) {
-				child->parent = currentState;
-				openList.push_back(child);
-			}
-		}
-
-		closedList.push_back(currentState);
-	}
-	printf("No solution found\n");
-	return nullptr;
-}
-
-bool AStar::CompareFCost(const State* s1, const State* s2) {
-	return s1->fCost < s2->fCost;
+    printf("No solution found.\n");
+    return nullptr;
 }

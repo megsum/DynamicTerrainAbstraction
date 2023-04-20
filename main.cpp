@@ -32,11 +32,16 @@ void PrintPath(State* state)
 	cout << "Printing path from goal: \n";
 	while (state != nullptr)
 	{
+		if (state == nullptr)
+		{
+			break;
+		}
+
 		cout << "\nNext state: \n";
 		cout << "{" << state->currentLocation[0] << "," << state->currentLocation[1] << "}\n|\nV\n";
 
-
 		state = state->parent;
+
 	}
 }
 
@@ -142,7 +147,7 @@ int main()
 		// End timer
 		auto bfsTimeEnd = steady_clock::now();
 		auto bfsElapsedTime = duration_cast<milliseconds>(bfsTimeEnd - bfsTimeStart).count() / 1000.0;
-		printf("%.2fs taken to generate initial regions using BFS. \n", bfsElapsedTime);
+		printf("%.2fs taken to generate initial regions using BFS. \n\n", bfsElapsedTime);
 
 		// Tracking time taken to do second pass
 		auto edgeTimeStart = steady_clock::now();
@@ -154,7 +159,7 @@ int main()
 		// End timer
 		auto edgeTimeEnd = steady_clock::now();
 		auto edgeElapsedTime = duration_cast<milliseconds>(edgeTimeEnd - edgeTimeStart).count() / 1000.0;
-		printf("%.2fs taken to add terrain edges. \n", edgeElapsedTime);
+		printf("%.2fs taken to add terrain edges. \n\n", edgeElapsedTime);
 
 		// After the second pass is done we save it to file so we don't have to generate navmesh again until navmesh updates
 		saveStatesToFile(stateVector, stateVectorFile);
@@ -164,10 +169,9 @@ int main()
 	// Initialize state and run A* with abstract graph starting from first region to the region the goal is in
 	// TODO eventually load scenarios, but will be using the first one of map 1 for testing.
 	//vector<int> startLocation = { 381, 793 };
-	//vector<int> goalLocation = { 1724, 889 }
-
+	//vector<int> goalLocation = { 1724, 889 };
 	vector<int> startLocation = { 0, 0 };
-	vector<int> goalLocation = { 100, 0 };
+	vector<int> goalLocation = { 5, 0 };
 
 	State* startState{};
 	for (auto state : stateVector)
@@ -190,6 +194,12 @@ int main()
 	// Store A star final nodes for the previous regions
 	vector<State*> abstractPath;
 
+	// Found goal don't need to keep iterating through regions
+	if (goalState->currentLocation == goalLocation)
+	{
+		PrintPath(goalState);
+	}
+
 	// Run A star again from abstract regions until we find the goal state.
 	while (goalState->currentLocation != goalLocation)
 	{
@@ -197,17 +207,14 @@ int main()
 		abstractPath.push_back(goalState);
 		goalState = aStar.Search(goalState);
 	}
+
 	// End timer
 	auto aStarTimeEnd = steady_clock::now();
 	auto aStarElapsedTime = duration_cast<milliseconds>(aStarTimeEnd - aStarTimeStart).count() / 1000.0;
-	printf("%.2fs taken to run A*. \n", aStarElapsedTime);
+	printf("%.2fs taken to run A*. \n\n", aStarElapsedTime);
 
-	// If this terrain type is not the goal location, run A* again with 
-	cout << "Goal location found with f cost: " << goalState->fCost;
 	for (auto state : abstractPath)
 	{
 		PrintPath(state);
 	}
-
-
 }
